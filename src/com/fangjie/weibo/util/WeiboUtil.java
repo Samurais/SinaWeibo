@@ -80,7 +80,6 @@ public class WeiboUtil {
 					weibo.setWeibo(null);
 				}
 				weibos.add(weibo);
-				System.out.println(weibo.content);
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();

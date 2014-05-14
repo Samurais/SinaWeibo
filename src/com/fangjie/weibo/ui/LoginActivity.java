@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.fangjie.weibo.R;
 import com.fangjie.weibo.bean.Task;
 import com.fangjie.weibo.bean.UserInfo;
 import com.fangjie.weibo.logic.MainService;
 import com.fangjie.weibo.util.GetUserInfo;
 import com.fangjie.weibo.util.SharePreferencesUtil;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;

@@ -3,13 +3,11 @@ package com.fangjie.weibo.ui;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.fangjie.weibo.R;
 import com.fangjie.weibo.bean.Task;
 import com.fangjie.weibo.bean.Weibo;
 import com.fangjie.weibo.logic.MainService;
 import com.fangjie.weibo.util.SharePreferencesUtil;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -17,7 +15,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
