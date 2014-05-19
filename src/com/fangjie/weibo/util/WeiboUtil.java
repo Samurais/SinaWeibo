@@ -7,15 +7,21 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import com.fangjie.weibo.bean.User;
 import com.fangjie.weibo.bean.Weibo;
+
+/**
+ * <a href="http://fangjie.sinaapp.com">http://fangjie.sinaapp.com</a>
+ * @author Jay
+ * @version 1.0
+ * @describe 微博api部分操作
+ */
 public class WeiboUtil {
 
+	//读取微博List
 	public List<Weibo> getWeiboList(String token, long i) {
 		List<Weibo> weibos=new ArrayList<Weibo>();
 		String url="https://api.weibo.com/2/statuses/home_timeline.json";
@@ -76,9 +82,7 @@ public class WeiboUtil {
 					weibo.setWeibo(zweibo);
 				}
 				else
-				{
 					weibo.setWeibo(null);
-				}
 				weibos.add(weibo);
 			}
 		} catch (JSONException e) {
@@ -86,17 +90,8 @@ public class WeiboUtil {
 		}
 		return weibos;
 	}
-
-	public int update(String token, String text) {
-		return 0;
-	}
-
-	public int guanzhuMe(String token) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	//HTTP请求   way-0 Post   way-1  Get
+	
+	//HTTP 请求操作
 	public static String HttpRequest(int way,String url,String params)
 	{
 		String result = "";
@@ -104,7 +99,6 @@ public class WeiboUtil {
         PrintWriter out = null;
         try {
             String urlNameString = url + "?" + params;
-    		System.out.println(urlNameString);
             URL realUrl = new URL(urlNameString);
             URLConnection connection;
             if(way==0)
@@ -155,4 +149,13 @@ public class WeiboUtil {
         }
         return result;
 	}
+	
+	public int update(String token, String text) {
+		return 0;
+	}
+
+	public int guanzhuMe(String token) {
+		return 0;
+	}
+
 }
