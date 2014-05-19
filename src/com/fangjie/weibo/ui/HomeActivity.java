@@ -7,7 +7,7 @@ import com.fangjie.weibo.R;
 import com.fangjie.weibo.bean.Task;
 import com.fangjie.weibo.bean.Weibo;
 import com.fangjie.weibo.logic.MainService;
-import com.fangjie.weibo.util.SharePreferencesUtil;
+import com.fangjie.weibo.util.LoginSessionUtil;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -18,6 +18,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/**
+ * <a href="http://fangjie.sinaapp.com">http://fangjie.sinaapp.com</a>
+ * @author Jay
+ * @version 1.0
+ * @describe 微博主界面中的Home Tab
+ */
 public class HomeActivity extends Activity implements IWeiboAcitivity {
 	private ListView weibolist;
 	private List<Weibo> weibos;
@@ -52,8 +58,8 @@ public class HomeActivity extends Activity implements IWeiboAcitivity {
 		
         weibolist.setFadingEdgeLength(0);
         
-		final String token=SharePreferencesUtil.getLoginUser(HomeActivity.this).getToken();
-		tv_title.setText(SharePreferencesUtil.getLoginUser(HomeActivity.this).getUserName());
+		final String token=LoginSessionUtil.getLoginUser(HomeActivity.this).getToken();
+		tv_title.setText(LoginSessionUtil.getLoginUser(HomeActivity.this).getUserName());
 		
 		Map<String,Object> params=new HashMap<String,Object>();
 		params.put("token", token);

@@ -14,6 +14,12 @@ import com.weibo.sdk.android.WeiboAuthListener;
 import com.weibo.sdk.android.WeiboDialogError;
 import com.weibo.sdk.android.WeiboException;
 
+/**
+ * <a href="http://fangjie.sinaapp.com">http://fangjie.sinaapp.com</a>
+ * @author Jay
+ * @version 1.0
+ * @describe 用户登录授权操作工具类
+ */
 public class AuthUtil 
 {
     private Weibo mWeibo;
@@ -26,6 +32,7 @@ public class AuthUtil
     {
     	this.context=context;
     }
+    
     //获取授权
     public void reqAccessToken()
     {

@@ -1,8 +1,7 @@
 package com.fangjie.weibo.ui;
 
 import com.fangjie.weibo.R;
-import com.fangjie.weibo.util.SharePreferencesUtil;
-
+import com.fangjie.weibo.util.LoginSessionUtil;
 import android.app.TabActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +12,14 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
+
+
+/**
+ * <a href="http://fangjie.sinaapp.com">http://fangjie.sinaapp.com</a>
+ * @author Jay
+ * @version 1.0
+ * @describe 微博主界面：TitleBar+ListView+底部四个Tab
+ */
 
 @SuppressWarnings("deprecation")
 public class MainActivity extends TabActivity{
@@ -75,15 +82,15 @@ public class MainActivity extends TabActivity{
 	    
 	}
 
-	
+
 	public boolean onCreateOptionsMenu(Menu menu) {
-	     /*
-         * add()方法的四个参数，依次是：
-         * 1、组别，如果不分组的话就写Menu.NONE,
-         * 2、Id，这个很重要，Android根据这个Id来确定不同的菜单
-         * 3、顺序，那个菜单现在在前面由这个参数的大小决定
-         * 4、文本，菜单的显示文本
-         */
+	    /*
+	     * add()方法的四个参数，依次是：
+	     * 1、组别，如果不分组的话就写Menu.NONE,
+	     * 2、Id，这个很重要，Android根据这个Id来确定不同的菜单
+	     * 3、顺序，那个菜单现在在前面由这个参数的大小决定
+	     * 4、文本，菜单的显示文本
+	     */
         menu.add(Menu.NONE, Menu.FIRST +1, 5, "退出微博");
         return true;
 	}
@@ -92,8 +99,9 @@ public class MainActivity extends TabActivity{
 	{
 		switch (item.getItemId())
 		{
+			//退出登录操作
 	        case Menu.FIRST + 1:
-	            SharePreferencesUtil.removeLoginUser(MainActivity.this);
+	            LoginSessionUtil.removeLoginUser(MainActivity.this);
 	        	Intent intent=new Intent(MainActivity.this,LoginActivity.class);
 	        	startActivity(intent);
 	        	finish();

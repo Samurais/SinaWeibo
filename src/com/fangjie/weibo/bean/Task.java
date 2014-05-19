@@ -1,20 +1,14 @@
 package com.fangjie.weibo.bean;
 
 import java.util.Map;
-
 /**
- * Task实体类
- * 
- * @author 方杰
- * @date 2013-7-28
+ * <a href="http://fangjie.sinaapp.com">http://fangjie.sinaapp.com</a>
+ * @author Jay
+ * @version 1.0
+ * describe Task实体类
  */
 public class Task {
-
-	//任务ID
-	private int taskID;
-	//任务参数
-	private Map<String ,Object> Params;
-	
+	//任务ID常量
 	//登陆的任务ID
 	public static final int WEIBO_LOGIN =1;
 	//通过授权码获取用户信息，并保存到数据库中
@@ -29,6 +23,11 @@ public class Task {
 	public static final int UPDATE_WEIBO = 6;
 	//关注@方杰_Jay
 	public static final int GUANZHU = 0;
+	
+	//任务ID
+	private int taskID;
+	//任务参数
+	private Map<String ,Object> Params;
 	
 	//构造方法
 	public Task(int taskID,Map<String ,Object> Params)
@@ -52,6 +51,5 @@ public class Task {
 	public void setParams(Map<String, Object> params) {
 		Params = params;
 	}
-	
 	
 }

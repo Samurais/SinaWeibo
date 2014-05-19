@@ -1,16 +1,13 @@
 package com.fangjie.weibo.ui;
 import java.util.Date;
 import java.util.List;
-
 import com.fangjie.weibo.R;
 import com.fangjie.weibo.bean.Weibo;
 import com.fangjie.weibo.util.AsyncImageLoader;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v4.util.LruCache;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +16,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+/**
+ * <a href="http://fangjie.sinaapp.com">http://fangjie.sinaapp.com</a>
+ * @author Jay
+ * @version 1.0
+ * @describe 微博List的Adapter
+ */
 public class WeiboAdapter extends BaseAdapter {
 	
 	@SuppressWarnings("unused")
@@ -27,12 +30,13 @@ public class WeiboAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
     private ViewHolder holder;
 
+    //用于实现微博List中的图片缓存
 	private final int maxMemory = (int) Runtime.getRuntime().maxMemory();//获取当前应用程序所分配的最大内存  
     private final int cacheSize = maxMemory / 5;//只分5分之一用来做图片缓存  
+    
     private LruCache<String, Bitmap> mLruCache = new LruCache<String, Bitmap>(  
             cacheSize) {   
     	protected int sizeOf(String key, Bitmap bitmap) {//复写sizeof()方法  
-            // replaced by getByteCount() in API 12  
             return bitmap.getRowBytes() * bitmap.getHeight() / 1024; //这里是按多少KB来算  
         }  
     }; 
@@ -86,7 +90,6 @@ public class WeiboAdapter extends BaseAdapter {
 		}
 
        ///组件添加内容
-	    Log.i("OUTPUT",position + " "+weibo.getContent() ); 
 		holder.tv_content.setText(weibo.getContent());
 		holder.tv_name.setText(weibo.getUser().getName());
 		holder.tv_from.setText("来自:"+Html.fromHtml(weibo.getFrom()));
@@ -146,22 +149,27 @@ public class WeiboAdapter extends BaseAdapter {
 		weibos.add(weibo);
 	}
 	
-	
 	/* 
 	 * @param urlStr 所需要加载的图片的url，以String形式传进来，可以把这个url作为缓存图片的key
 	 * @param image ImageView 控件
 	 */
 	private void loadBitmap(String urlStr, ImageView image,int width,int height) {
-		AsyncImageLoader asyncLoader = new AsyncImageLoader(image, mLruCache,width,height);//什么一个异步图片加载对象
-		Bitmap bitmap = asyncLoader.getBitmapFromMemoryCache(urlStr);//首先从内存缓存中获取图片
+		//异步图片加载类
+		AsyncImageLoader asyncLoader = new AsyncImageLoader(image, mLruCache,width,height);
+		//首先从内存缓存中获取图片
+		Bitmap bitmap = asyncLoader.getBitmapFromMemoryCache(urlStr);
+		//如果缓存中存在这张图片则直接设置给ImageView
 		if (bitmap != null) {
-			image.setImageBitmap(bitmap);//如果缓存中存在这张图片则直接设置给ImageView
+			image.setImageBitmap(bitmap);
 		} else {
 			image.setImageResource(R.drawable.user_head);//否则先设置成默认的图片
-			asyncLoader.execute(urlStr);//然后执行异步任务AsycnTask 去网上加载图片
+			asyncLoader.execute(urlStr);//然后执行异步任务AsycnTask去网上加载图片
 		}
 	}
 	
+	/*
+	 * 一个工具方法：作用是把系统时间 转换成当前时间的 前*分钟，前*小时
+	 */
 	@SuppressWarnings("deprecation")
 	public String dealTime(String time)
 	{

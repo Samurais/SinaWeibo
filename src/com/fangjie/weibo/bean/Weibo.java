@@ -1,15 +1,28 @@
 package com.fangjie.weibo.bean;
-
+/**
+ * <a href="http://fangjie.sinaapp.com">http://fangjie.sinaapp.com</a>
+ * @author Jay
+ * @version 1.0
+ * @describe 微博实体类 Weibo
+ */
 public class Weibo {
-
+	//微博id
 	public long wid;
+	//微博内容
 	public String content;
+	//微博来源
 	public String from;
+	//微博时间
 	public String time;
+	//微博中等图片
 	public String bmiddle_pic;
+	//微博的转发数
 	public int reposts_count;
+	//微博的评论数
 	public int comments_count;
+	//转发子微博
 	public Weibo weibo;
+	//微博作者 用户信息
 	public User user;
 	
 	public long getWid() {

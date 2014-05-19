@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Service;
@@ -13,41 +12,31 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.util.Log;
-
 import com.fangjie.weibo.bean.*;
-import com.fangjie.weibo.db.DBUserInfo;
 import com.fangjie.weibo.ui.IWeiboAcitivity;
-import com.fangjie.weibo.util.GetUserInfo;
-import com.fangjie.weibo.util.SharePreferencesUtil;
+import com.fangjie.weibo.util.DBLoginUserUtil;
+import com.fangjie.weibo.util.LoginUserUtil;
+import com.fangjie.weibo.util.LoginSessionUtil;
 import com.fangjie.weibo.util.WeiboUtil;
 import com.weibo.sdk.android.Oauth2AccessToken;
 
+/**
+ * <a href="http://fangjie.sinaapp.com">http://fangjie.sinaapp.com</a>
+ * @author Jay
+ * @version 1.0
+ * @describe 后台处理UI线程的创建得任务队列
+ */
 public class MainService extends Service implements Runnable{
-
 	private static Queue<Task> tasks=new LinkedList<Task>();
 	private static ArrayList<Activity> appActivities=new ArrayList<Activity>();
-	
 	private boolean isRun;
 	private Handler handler;
 	
 	@SuppressLint("HandlerLeak")
-	@Override
-	public void onCreate() {
-		// TODO Auto-generated method stub	
-		/**
-		 * 在MainService中开启第二线程来处理任务
-		 * 主要是不断监听Tasks堆栈，从Tasks中处理task
-		 */
-		isRun=true;		
-		Thread thread =new Thread(this);
-		thread.start();
+	public void onCreate() {		
 		super.onCreate();
 		
-		/**
-		 * 主要是获取从MainService第二线程（doTask）中获取处理完任务的数据
-		 * 并通知更新UI界面
-		 */
+		//任务队列的 任务处理完成的消息
 		handler =new  Handler(){
 			public void handleMessage(Message msg)
 			{
@@ -86,65 +75,46 @@ public class MainService extends Service implements Runnable{
 				}
 			}
 		};
-
+		
+		//开启第二线程，做任务队列的循环操作
+		isRun=true;		
+		Thread thread =new Thread(this);
+		thread.start();
 	}
 
-	@Override
+	//多线程 就是不断的从Task队列中取 Task，并做处理
 	public void run() {
-		// TODO Auto-generated method stub
-		while(isRun)
-		{
-			if(!tasks.isEmpty())
-			{
+		while(isRun){
+			if(!tasks.isEmpty()){
 				doTask(tasks.poll());
 			}
 		}
 	}
 	
-	/**
-	 * UI层向MainService中发送任务task
-	 * UI层调用，所以static
-	 * @param task
-	 */
+	//UI线程新开任务的接口
 	public static void newTask(Task task)
 	{
 		tasks.add(task);
 	}
 	
-	/**
-	 * UI层向MainService中发送任务的同时，同样要发送自己Activity，
-	 * 以便在MainService中调用refresh();
-	 * @param task
-	 */
+	//UI新开任务时，需要传入Activity实例，为了refresh操作
 	public static void addActivty(Activity activity)
 	{
 		appActivities.add(activity);
 	}
-	/**
-	 * UI层中有向MainService中传递Activity，在任务结束后（refresh），应去除该Activity，防止混淆！
-	 * eg：在LoginActivity中的GET_USERINFO_IN_LOGIN任务会随Activity的每次重新加载而开始一次，如果不去除
-	 * activity的话，会导致本次refresh的是上次的activity的实例。因为获取activity是通过getActivityByName，这两
-	 * 次的activity实例的name是相同的。
-	 * @param activity
-	 */
+	
+	//任务完成后，应该remove对应的Activity实例，防止下次同一Activity的不同实例refresh混淆
 	public static void reMoveActivty(Activity activity)
 	{
 		appActivities.remove(activity);
 	}
 	
-	/**
-	 * 通过name获取新开任务时传递过来的Activity实例
-	 * @param name
-	 * @return
-	 */
+	//通过name获取新开任务时传递过来的Activity实例
 	public Activity getActivityByName(String name)
 	{
-		if(!appActivities.isEmpty())
-		{
-			for(Activity activity:appActivities)
-			{
-				if(activity.getClass().getName().indexOf(name)>0)
-				{
+		if(!appActivities.isEmpty()){
+			for(Activity activity:appActivities){
+				if(activity.getClass().getName().indexOf(name)>0){
 					return activity;
 				}
 			}
@@ -152,10 +122,7 @@ public class MainService extends Service implements Runnable{
 		return null;
 	}
 
-	/**
-	 * 处理Tasks堆栈中的task
-	 * @param task
-	 */
+	//处理Tasks堆栈中的task
 	public void doTask(Task task)
 	{
 		Message msg=handler.obtainMessage();
@@ -165,59 +132,46 @@ public class MainService extends Service implements Runnable{
 		{
 			//登录操作
 			case Task.WEIBO_LOGIN:
-				UserInfo LoginUser=(UserInfo)(task.getParams().get("LoginUser"));
+				LoginUser LoginUser=(LoginUser)(task.getParams().get("LoginUser"));
 				Context context=getActivityByName("LoginActivity");
-				SharePreferencesUtil.SaveLoginUser(context, LoginUser);
+				LoginSessionUtil.SaveLoginUser(context, LoginUser);
 				msg.obj="成功";
 				break;
 				
-			//通过access_token获取用户信息，并保存到数据库操作	
+			//通过Token从微博API获取用户信息，并保存到数据库操作	
 			case Task.GET_USERINFO_BY_TOKEN:
 			{
 				    Oauth2AccessToken access_token=(Oauth2AccessToken)task.getParams().get("token");
-					Log.i("OUTPUT", "access_token:"+access_token.getToken());
-					/**
-					 * 步骤一：用授权码来获取用户Uid
-					 */
+					
+				    //1.先通过Token获取Uid
+				    
 					//请求获取uid
 		        	String uid="";
-		        	GetUserInfo.reqUID(access_token);
+		        	LoginUserUtil.reqUID(access_token);
 		        	//获取uid
 		        	do{
-		        		uid=GetUserInfo.getUID();
+		        		uid=LoginUserUtil.getUID();
 		        	}while(uid.equals(""));
-		        	/**
-		        	 * 步骤二：通过uid，token获取UserInfo
-		        	 */
+		        	
+		        	//2.通过uid，token获取UserInfo
+		        	
 		        	//请求获取用户信息
 		        	long _uid=Long.parseLong(uid);
-		        	UserInfo user=new UserInfo();
-		        	GetUserInfo.reqUserInfo(access_token, _uid);
+		        	LoginUser user=new LoginUser();
+		        	LoginUserUtil.reqUserInfo(access_token, _uid);
 		        	//获取UserInfo
 		        	do{
-		        		user=GetUserInfo.getUserInfo();
+		        		user=LoginUserUtil.getUserInfo();
 		        	}while(user.getUserName().equals(""));		        	
-		        	user.setUserId(uid);		        
-		        	Log.i("OUTPUT","获取用户信息成功   username:"+user.getUserName()+"userid+"+user.getUserId()+"usericon"+user.getUserIcon());
-		        	
-		        	/**
-		        	 * 步骤三：把UserInfo的数据保存到数据库总
-		        	 */
+		        	user.setUserId(uid);
+
+		        	//3.把UserInfo的数据保存到数据库
 		        	//创建数据库
-		        	DBUserInfo db=new DBUserInfo(getActivityByName("AuthActivity"));
+		        	DBLoginUserUtil db=new DBLoginUserUtil(getActivityByName("AuthActivity"));
 		        	//如果该数据不存在数据库中
-		        	if(db.getUserInfoByUserId(uid)==null)
-		        	{
-		        		//插入
+		        	if(db.getUserInfoByUserId(uid)==null){
 		        		db.insertUserInfo(user);    
-		        		Log.i("OUTPUT","保存数据库成功");
-		        	}
-		        	//如果该数据已经存在数据库中
-		        	else
-		        	{
-		        		//修改
-		        		Log.i("OUTPUT","数据修改成功");
-		        	}       
+		        	}      
 		        	msg.obj="成功";
 				}
 				break;
@@ -225,8 +179,8 @@ public class MainService extends Service implements Runnable{
 			//登录界面获取用户信息显示操作
 			case Task.GET_USERINFO_IN_LOGIN:
 			{
-	        	DBUserInfo db=new DBUserInfo(getActivityByName("LoginActivity"));
-	        	List<UserInfo> users=db.getAllUserInfo();
+	        	DBLoginUserUtil db=new DBLoginUserUtil(getActivityByName("LoginActivity"));
+	        	List<LoginUser> users=db.getAllUserInfo();
 	        	msg.obj=users;
 	        	break;
 			}
@@ -255,12 +209,10 @@ public class MainService extends Service implements Runnable{
 				String token=(String)task.getParams().get("token");
 				String text=(String)task.getParams().get("text");
 				WeiboUtil weiboutil=new WeiboUtil();
-				if(weiboutil.update(token, text)==0)
-				{
+				if(weiboutil.update(token, text)==0){
 					msg.obj=0;	
 				}
-				else
-				{
+				else{
 					msg.obj=1;
 				}
 				break;
